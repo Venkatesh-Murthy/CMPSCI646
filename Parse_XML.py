@@ -3,69 +3,60 @@ import pdb
 import xml.sax
 import glob
 import os
-class MovieHandler( xml.sax.ContentHandler ):
+class DocHandler( xml.sax.ContentHandler ):
    def __init__(self,count):
       self.CurrentData = ""
-      self.type = ""
-      self.format = ""
-      self.years=""
-      self.year = ""
-      self.rating = ""
-      self.stars = ""
-      self.description = ""
       self.line=""
+      self.region=""
+      self.section=""
+      self.page=""
       self.count=count;
-      #count=0;
-      #pdb.set_trace()
+      
 
    # Call when an element starts
    def startElement(self, tag, attributes):
+      
       self.CurrentData = tag
-      if tag == "movie":
-         print "*****Movie*****"
-         title = attributes["title"]
-         print "Title:", title
+      
 
    # Call when an elements ends
-   def endElement(self, tag):
-      if self.CurrentData == "type":
-         print "Type:", self.type
-      elif self.CurrentData == "format":	
-         print "Format:", self.format
-      elif self.CurrentData == "years":
-         print "Years:", self.years
-      elif self.CurrentData == "year":
-         print "Year:", self.year
-      elif self.CurrentData == "rating":
-         print "Rating:", self.rating
-      elif self.CurrentData == "stars":
-         print "Stars:", self.stars
-      elif self.CurrentData == "description":
-         print "Description:", self.description
-      self.CurrentData = ""
+   #def endElement(self, tag):
+    #  if self.CurrentData == "region":
+     #    print "Region:", self.region
+#      elif self.CurrentData == "section":	
+ #        print "Section:", self.section
+  #    elif self.CurrentData == "page":
+   #      print "Page:", self.page
+    #  elif self.CurrentData == "line":
+     #    print "Year:", self.line
+     
 
    # Call when a character is read
    def characters(self, content):
-#      pdb.set_trace();
-      if self.CurrentData == "type":
-         self.type = content
-      elif self.CurrentData == "format":
-         self.format = content
-      elif self.CurrentData == "years":
-         self.years = content   
-      elif self.CurrentData == "year":
-         self.year = content
-      elif self.CurrentData == "rating":
-         self.rating = content
-      elif self.CurrentData == "stars":
-         self.stars = content
-      elif self.CurrentData == "description":
-         self.description = content
+#      print "Characters: ", content
+      #pdb.set_trace();
+      
+      if self.CurrentData == "region":
+         self.region = content
+	 word=self.region.split(' ')
+       #  pdb.set_trace()
+         #self.count=self.count+len(word)
+
+      elif self.CurrentData == "section":
+         self.section = content
+	 word=self.section.split(' ')
+         #self.count=self.count+len(word)
+
+      elif self.CurrentData == "page":
+         self.page = content
+	 word=self.page.split(' ')
+         self.count=self.count+len(word)
       elif self.CurrentData == "line":
-#	 pdb.set_trace()
+	 
          self.line = content
 	 word=self.line.split(' ')
 	 self.count=self.count+len(word)
+         
 	 #print "Word Count:", self.count
    def ignorableWhitespace(self, whitespace):
 	print whitespace
@@ -78,14 +69,17 @@ if ( __name__ == "__main__"):
    parser.setFeature(xml.sax.handler.feature_namespaces, 0)
    count=0;
    # override the default ContextHandler
-   Handler = MovieHandler(count)
+   Handler = DocHandler(count)
    parser.setContentHandler( Handler )
 #   pdb.set_trace()
    #count=0;
    
-   for root, dirs, files in os.walk("/home/venk/Documents/Information_Retrieval/books-tiny/"):
+   for root, dirs, files in os.walk("/home/venk/Documents/Information_Retrieval/books-medium/"):
      for file in files:
 	if file.endswith(".xml"):
+		print "Processing... ",file
+               # source=open(os.path.join(root, file));
      		parser.parse(os.path.join(root, file))
+                #xml.sax.parse(source, DocHandler(count))
    #parser.parse("sample.xml")i
    print "Word count: ",Handler.count
