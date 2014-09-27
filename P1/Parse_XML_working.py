@@ -62,7 +62,7 @@ class DocHandler( xml.sax.ContentHandler ):
    def special_characters(self, word):
 	new_str="";
 #	print word
-#	pdb.set_trace()
+	#pdb.set_trace()
 	for i in range(len(word)):
 		if(word[i].isupper()==True):
 			new_str=new_str+word[i].lower();
@@ -70,6 +70,8 @@ class DocHandler( xml.sax.ContentHandler ):
 			new_str=new_str+word[i]
 		elif(word[i].islower()==True):
 			new_str=new_str+word[i]
+        	elif(word[i].isnumeric()==True):                                                                                                                                                                                                              
+                        new_str=new_str+word[i]
 		else:
 			new_str=new_str+" "
 	self.line=new_str
@@ -96,38 +98,55 @@ class DocHandler( xml.sax.ContentHandler ):
          self.page = content
 	 word=self.page.split(' ')
          self.count=self.count+len(word)
-      elif self.CurrentData == "line":
+      elif self.CurrentData == "line" or self.CurrentData =="marker":
 	  
          self.line = content
+	 
 	 self.special_characters(self.line);
 	 word=self.line.split(' ')
-	 #pdb.set_trace()
+	# pdb.set_trace()
 	 for i in range(len(word)):
-	     self.stp_word_chk(word[i]);
-	     if (self.valid==1 and word[i]!=""):   
+	     self.valid=1;#self.stp_word_chk(word[i]);
+	     if (self.valid==1 and word[i]!=""):
+#		print word[i]
+		self.count=self.count+1;
 	 	if word[i] in self.inv_index:
 		   if self.book_count in self.inv_index[word[i]]:
 	              if self.CurrentPage in self.inv_index[word[i]][self.book_count]:	
         		self.inv_index[word[i]][self.book_count][self.CurrentPage] += 1;
+			self.inv_index[word[i]]['total']+=1;
 		      else:
 			self.inv_index[word[i]][self.book_count][self.CurrentPage] =1;
-			self.uniq_count=self.uniq_count+1;
+			self.inv_index[word[i]]['total']+=1;
+	#		self.uniq_count=self.uniq_count+1;
 		   else:
 			self.inv_index[word[i]][self.book_count]={}
+			self.inv_index[word[i]]['total']+=1;
 			self.inv_index[word[i]][self.book_count][self.CurrentPage]=1;
-			self.uniq_count=self.uniq_count+1;
+	#		self.uniq_count=self.uniq_count+1;
 		else:
 			self.inv_index[word[i]]={};
 			self.inv_index[word[i]][self.book_count]={}
+ 			self.inv_index[word[i]]['total']=1;
 			self.inv_index[word[i]][self.book_count][self.CurrentPage]=1;
                         self.uniq_count=self.uniq_count+1;
-	 self.count=self.count+len(word)
+#	 self.count=self.count+len(word)
 
 #         print self.Book 
 	 #print "Word Count:", self.counter
    def ignorableWhitespace(self, whitespace):
 	print whitespace
-  
+def tokenPF_calc(u):
+	 page_count=0;
+	 for v in u.itervalues():                                                                                                                                                                                                                           
+            if type(v) is dict:                                                                                                                                                                                                                             
+#                print v                                                                                                                                                                                                                                     
+                #pdb.set_trace()                                                                                                                                                                                                                            
+                #for w in v.itervalues():                                                                                                                                                                                                                    
+                 #    tmp2+=w                                                                                                                                                                                                                                
+                page_count+=len(v);  
+	 return page_count                                                                                                                                                                                                                              
+          
 if ( __name__ == "__main__"):
    
    # create an XMLReader
@@ -148,7 +167,8 @@ if ( __name__ == "__main__"):
 #   pdb.set_trace()
    #count=0;
    
-   for root, dirs, files in os.walk("/home/venk/Documents/Information_Retrieval/sample_python/P1/data/"):
+   #for root, dirs, files in os.walk("/home/venk/Documents/Information_Retrieval/sample_python/P1/data/"):
+   for root, dirs, files in os.walk("/home/venk/Documents/Information_Retrieval/books-tiny/"):
      for file in files:
 	if file.endswith(".xml"):
 		print "Processing... ",file
@@ -166,13 +186,58 @@ if ( __name__ == "__main__"):
 		book_count=book_count+1; 
                 #xml.sax.parse(source, DocHandler(count))
    #parser.parse("sample.xml")i
-   print "Word count: ",Handler.count
-   print "Page: ", Handler.page
-   print Handler.inv_index;
+   #print "Word count: ",Handler.count
+   #print "Page: ", Handler.page
+   #prin:170
+#Handler.inv_index;
   
-   print "VNM tiny N " + str(book_count) + ' ' + str(Handler.page_count)
-   print "VNM tiny TO " + str(Handler.count) 
-   print "VNM tiny TU " + str(Handler.uniq_count)
-
-   
-   #print Handler.Book
+  # print "VNM tiny N " + str(book_count) + ' ' + str(Handler.page_count)
+ #  print "VNM tiny TO " + str(Handler.count) 
+#   print "VNM tiny TU " + str(Handler.uniq_count)
+   #book_count=[];page_count=[]; word_count=[];diction={};
+  # for u in inv_index.itervalues():
+	 #print u
+	 #book_count.append((len(u)))
+	 #tmp=0;
+	 #tmp2=0;
+	 
+	 #for v in u.itervalues():
+	 #   if type(v) is dict:	
+	#	print v
+		#pdb.set_trace()
+	#	for w in v.itervalues():
+         #            tmp2+=w
+	#	tmp+=len(v);
+	# page_count.append(tmp)
+	# word_count.append(tmp2)
+	 
+#print word_count
+#print page_count
+#print book_count
+#print Handler.inv_index
+n=sorted(inv_index, key=lambda x: (inv_index[x]['total']),reverse=True)
+print "VNM tiny N " + str(book_count) + ' ' + str(Handler.page_count)                                                                                                                                                                                    
+print "VNM tiny TO " + str(Handler.count)                                                                                                                                                                                                                
+print "VNM tiny TU " + str(Handler.uniq_count)
+for i in range(50):
+	u=Handler.inv_index[n[i]];
+	tokenString=n[i];
+	tokenBF=(len(u)-1);
+	tokenPF=(tokenPF_calc(u));
+	tokenTF=(inv_index[n[i]]['total'])
+	tokenP=tokenTF/len(n);
+	tokenPR=tokenP*(i+1);
+	print "VNM " + str(i+1) + ' ' + tokenString + ' ' + str(tokenBF) + ' ' + str(tokenPF) + ' ' + str(tokenTF)+ ' ' + str(tokenP) + ' ' + str(tokenPR);
+	#for x in n: inv_index[x]
+new_list=['powerful','strong','butter','salt','washington','james', 'church'];
+for i in range(7):                                                                                                                                                                                                                                         
+        u=Handler.inv_index[new_list[i]];                                                                                                                                                                                                                          
+        tokenString=new_list[i];                                                                                                                                                                                                                                   
+        tokenBF=(len(u)-1);                                                                                                                                                                                                                                 
+        tokenPF=(tokenPF_calc(u));                                                                                                                                                                                                                          
+        tokenTF=(inv_index[new_list[i]]['total'])                                                                                                                                                                                                                  
+        tokenP=tokenTF/len(n);                                                                                                                                                                                                                              
+        tokenPR=tokenP*(i+1);                                                                                                                                                                                                                               
+        print "VNM " + str(n.index(new_list[i])+1) + ' ' + tokenString + ' ' + str(tokenBF) + ' ' + str(tokenPF) + ' ' + str(tokenTF)+ ' ' + str(tokenP) + ' ' + str(tokenPR);
+pdb.set_trace()
+print Handler.inv_index['powerful']
